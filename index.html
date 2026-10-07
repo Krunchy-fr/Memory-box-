@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Space</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+        :root {
+            --bg: #07090b;
+            --panel: #0d1115;
+            --panel-2: #11171c;
+            --border: #1d2931;
+            --blue: #8ee7ff;
+            --blue-strong: #54d9ff;
+            --blue-dark: #123542;
+            --text: #edfaff;
+            --muted: #82939c;
+            --danger: #ff647c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background:
+                radial-gradient(circle at 80% 10%, rgba(84, 217, 255, .08), transparent 30%),
+                var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        button,
+        input,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .app {
+            min-height: 100vh;
+        }
+
+        /* =========================
+   TOP BAR
+========================= */
+
+        .topbar {
+            height: 72px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(7, 9, 11, .85);
+            backdrop-filter: blur(16px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .logo-mark {
+            width: 34px;
+            height: 34px;
+            border: 1px solid var(--blue);
+            color: var(--blue);
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            box-shadow: 0 0 20px rgba(84, 217, 255, .12);
+        }
+
+        .logo span {
+            color: var(--blue);
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--panel);
+            color: var(--text);
+            transition: .2s;
+        }
+
+        .icon-btn:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+
+        /* =========================
+   MAIN LAYOUT
+========================= */
+
+        .main {
+            display: flex;
+            min-height: calc(100vh - 72px);
+        }
+
+        .sidebar {
+            width: 340px;
+            border-right: 1px solid var(--border);
+            background: rgba(9, 12, 15, .9);
+            padding: 22px 16px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .sidebar-title {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 18px;
+        }
+
+        .add-btn {
+            border: 1px solid var(--blue);
+            background: var(--blue);
+            color: #001017;
+            font-weight: 700;
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            font-size: 21px;
+            transition: .2s;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(84, 217, 255, .2);
+        }
+
+        .search {
+            width: 100%;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px 14px;
+            border-radius: 10px;
+            outline: none;
+            margin-bottom: 15px;
+        }
+
+        .search:focus {
+            border-color: var(--blue);
+        }
+
+        .people {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .person-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .person-item:hover {
+            background: var(--panel);
+        }
+
+        .person-item.active {
+            background: rgba(84, 217, 255, .08);
+            border-color: rgba(84, 217, 255, .25);
+        }
+
+        .avatar {
+            width: 47px;
+            height: 47px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .person-info {
+            min-width: 0;
+        }
+
+        .person-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .person-preview {
+            color: var(--muted);
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .empty-people {
+            text-align: center;
+            color: var(--muted);
+            padding: 35px 15px;
+            font-size: 13px;
+        }
+
+        /* =========================
+   CONTENT
+========================= */
+
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow: hidden;
+        }
+
+        .welcome {
+            max-width: 850px;
+            margin: 80px auto;
+            text-align: center;
+        }
+
+        .welcome-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 25px;
+            border-radius: 24px;
+            border: 1px solid rgba(142, 231, 255, .3);
+            color: var(--blue);
+            display: grid;
+            place-items: center;
+            font-size: 35px;
+            box-shadow: 0 0 50px rgba(84, 217, 255, .08);
+        }
+
+        .welcome h1 {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: clamp(32px, 5vw, 58px);
+            margin-bottom: 14px;
+        }
+
+        .welcome h1 span {
+            color: var(--blue);
+        }
+
+        .welcome p {
+            color: var(--muted);
+            max-width: 500px;
+            margin: auto;
+            line-height: 1.7;
+        }
+
+        /* =========================
+   PROFILE
+========================= */
+
+        .profile {
+            max-width: 1150px;
+            margin: auto;
+        }
+
+        .profile-top {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-btn {
+            border: 1px solid var(--border);
+            background: var(--panel);
+            color: var(--text);
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+        }
+
+        .profile-avatar {
+            width: 82px;
+            height: 82px;
+            border-radius: 20px;
+            object-fit: cover;
+            border: 1px solid rgba(142, 231, 255, .4);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-info h1 {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+
+        .profile-info p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .small-btn {
+            padding: 9px 13px;
+            border: 1px solid var(--border);
+            background: var(--panel);
+            color: var(--text);
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .small-btn:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+
+        .small-btn.danger:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* =========================
+   ABOUT BOX
+========================= */
+
+        .meaning-box {
+            margin: 25px 0 35px;
+            background:
+                linear-gradient(135deg, rgba(84, 217, 255, .07), transparent),
+                var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 22px;
+        }
+
+        .section-label {
+            color: var(--blue);
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 12px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 13px;
+        }
+
+        .meaning-box textarea {
+            width: 100%;
+            min-height: 100px;
+            resize: vertical;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        .meaning-box textarea::placeholder {
+            color: #50616a;
+        }
+
+        /* =========================
+   MEMORIES
+========================= */
+
+        .memories-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .memories-header h2 {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 20px;
+        }
+
+        .memory-count {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .memory-grid {
+            columns: 3 260px;
+            column-gap: 24px;
+        }
+
+        .memory-card {
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 25px;
+            break-inside: avoid;
+            position: relative;
+            transform: rotate(var(--rotation));
+        }
+
+        .memory-paper {
+            background: #e9f5f8;
+            color: #101719;
+            padding: 10px 10px 17px;
+            box-shadow:
+                0 18px 35px rgba(0, 0, 0, .35),
+                0 4px 10px rgba(0, 0, 0, .2);
+        }
+
+        .memory-image-wrap {
+            position: relative;
+            overflow: hidden;
+            background: #ccdce0;
+        }
+
+        .memory-image {
+            width: 100%;
+            display: block;
+            max-height: 440px;
+            object-fit: cover;
+        }
+
+        .pin {
+            position: absolute;
+            width: 17px;
+            height: 17px;
+            background: var(--blue-strong);
+            border-radius: 50%;
+            top: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            box-shadow:
+                0 2px 5px rgba(0, 0, 0, .5),
+                inset 0 -2px 3px rgba(0, 0, 0, .25);
+        }
+
+        .pin::after {
+            content: "";
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: #dff9ff;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+        }
+
+        .memory-caption {
+            font-family: "Space Grotesk", sans-serif;
+            font-weight: 600;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        .memory-note {
+            font-size: 12px;
+            line-height: 1.6;
+            margin-top: 6px;
+            color: #47555a;
+        }
+
+        .memory-date {
+            font-size: 10px;
+            color: #718087;
+            margin-top: 10px;
+        }
+
+        .memory-menu {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 8px;
+            gap: 5px;
+        }
+
+        .memory-menu button {
+            border: none;
+            background: transparent;
+            color: #718087;
+            font-size: 11px;
+        }
+
+        .memory-menu button:hover {
+            color: #111;
+        }
+
+        .empty-memory {
+            border: 1px dashed var(--border);
+            padding: 60px 20px;
+            text-align: center;
+            border-radius: 15px;
+            color: var(--muted);
+        }
+
+        .empty-memory strong {
+            display: block;
+            color: var(--text);
+            margin-bottom: 7px;
+        }
+
+        /* =========================
+   MODAL
+========================= */
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .75);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 500px;
+            background: #0c1115;
+            border: 1px solid var(--border);
+            border-radius: 17px;
+            padding: 25px;
+            box-shadow: 0 30px 100px rgba(0, 0, 0, .6);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal h2 {
+            font-family: "Space Grotesk", sans-serif;
+            margin-bottom: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 7px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            border: 1px solid var(--border);
+            background: #080c0f;
+            color: var(--text);
+            border-radius: 9px;
+            padding: 11px 12px;
+            outline: none;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--blue);
+        }
+
+        .file-input {
+            padding: 9px !important;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 22px;
+        }
+
+        .cancel-btn,
+        .save-btn {
+            padding: 10px 16px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+        }
+
+        .cancel-btn {
+            background: var(--panel);
+            color: var(--text);
+        }
+
+        .save-btn {
+            background: var(--blue);
+            color: #001017;
+            border-color: var(--blue);
+            font-weight: 700;
+        }
+
+        /* =========================
+   TOAST
+========================= */
+
+        .toast {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: #e9f5f8;
+            color: #071014;
+            padding: 12px 17px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: .3s;
+            z-index: 200;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* =========================
+   MOBILE
+========================= */
+
+        @media (max-width: 800px) {
+
+            .topbar {
+                padding: 0 16px;
+            }
+
+            .main {
+                display: block;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 15px;
+            }
+
+            .people {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 5px;
+            }
+
+            .person-item {
+                min-width: 180px;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .profile-top {
+                align-items: flex-start;
+            }
+
+            .profile-avatar {
+                width: 62px;
+                height: 62px;
+            }
+
+            .profile-info h1 {
+                font-size: 22px;
+            }
+
+            .profile-actions {
+                flex-direction: column;
+            }
+
+            .memory-grid {
+                columns: 1;
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .logo {
+                font-size: 17px;
+            }
+
+            .logo-mark {
+                width: 30px;
+                height: 30px;
+            }
+
+            .profile-top {
+                flex-wrap: wrap;
+            }
+
+            .profile-info {
+                min-width: 150px;
+            }
+
+            .profile-actions {
+                width: 100%;
+                flex-direction: row;
+            }
+
+            .profile-actions button {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- TOP BAR -->
+        <header class="topbar">
+            <div class="logo">
+                <div class="logo-mark">✦</div>
+                Memory<span>Space</span>
+            </div>
+
+            <div class="top-actions">
+                <button class="icon-btn" onclick="openAddPerson()" title="Add person">+</button>
+            </div>
+        </header>
+
+        <main class="main">
+
+            <!-- SIDEBAR -->
+            <aside class="sidebar">
+
+                <div class="sidebar-head">
+                    <div class="sidebar-title">People</div>
+
+                    <button class="add-btn" onclick="openAddPerson()">+</button>
+                </div>
+
+                <input type="text" class="search" id="searchInput" placeholder="Search people..."
+                    oninput="renderPeople()">
+
+                <div class="people" id="peopleList"></div>
+
+            </aside>
+
+            <!-- CONTENT -->
+            <section class="content" id="content">
+
+                <div class="welcome">
+
+                    <div class="welcome-icon">✦</div>
+
+                    <h1>Your <span>Memory Space.</span></h1>
+
+                    <p>
+                        A private little place for the people,
+                        moments, thoughts and memories you don't
+                        want to lose.
+                    </p>
+
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+
+
+    <!-- =========================
+     ADD PERSON MODAL
+========================= -->
+
+    <div class="overlay" id="personModal">
+
+        <div class="modal">
+
+            <h2 id="personModalTitle">Add Person</h2>
+
+            <form id="personForm">
+
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="personName" placeholder="Enter their name..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Profile Picture</label>
+                    <input type="file" id="personImage" class="file-input" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label>Short description</label>
+                    <textarea id="personDescription" placeholder="Something about them..."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" onclick="closeModals()">
+                        Cancel
+                    </button>
+
+                    <button type="submit" class="save-btn">
+                        Save Person
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+     MEMORY MODAL
+========================= -->
+
+    <div class="overlay" id="memoryModal">
+
+        <div class="modal">
+
+            <h2 id="memoryModalTitle">Pin a Memory</h2>
+
+            <form id="memoryForm">
+
+                <div class="form-group">
+                    <label>Photo</label>
+
+                    <input type="file" id="memoryImage" class="file-input" accept="image/*" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Caption</label>
+
+                    <input type="text" id="memoryCaption" placeholder="Give this memory a name...">
+                </div>
+
+                <div class="form-group">
+                    <label>What do you remember?</label>
+
+                    <textarea id="memoryNote" placeholder="Write something about this moment..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Date</label>
+
+                    <input type="date" id="memoryDate">
+                </div>
+
+                <div class="modal-actions">
+
+                    <button type="button" class="cancel-btn" onclick="closeModals()">
+                        Cancel
+                    </button>
+
+                    <button type="submit" class="save-btn">
+                        Pin Memory
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <div class="toast" id="toast"></div>
+
+
+    <script>
+
+        /* =====================================================
+           DATA
+        ===================================================== */
+
+        let people = JSON.parse(localStorage.getItem("memorySpacePeople")) || [];
+
+        let currentPersonId = null;
+        let editingPersonId = null;
+
+
+        /* =====================================================
+           SAVE DATA
+        ===================================================== */
+
+        function saveData() {
+
+            localStorage.setItem(
+                "memorySpacePeople",
+                JSON.stringify(people)
+            );
+        }
+
+
+        /* =====================================================
+           IMAGE → BASE64
+        ===================================================== */
+
+        function imageToBase64(file) {
+
+            return new Promise((resolve, reject) => {
+
+                const reader = new FileReader();
+
+                reader.onload = () => resolve(reader.result);
+
+                reader.onerror = reject;
+
+                reader.readAsDataURL(file);
+            });
+        }
+
+
+        /* =====================================================
+           DEFAULT AVATAR
+        ===================================================== */
+
+        function defaultAvatar(name) {
+
+            const letter = name
+                ? name.charAt(0).toUpperCase()
+                : "?";
+
+            const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="200"
+             height="200">
+
+            <rect width="100%" height="100%"
+                  fill="#11171c"/>
+
+            <text x="50%"
+                  y="54%"
+                  dominant-baseline="middle"
+                  text-anchor="middle"
+                  fill="#8ee7ff"
+                  font-family="Arial"
+                  font-size="80">
+                ${letter}
+            </text>
+
+        </svg>
+    `;
+
+            return "data:image/svg+xml;base64," +
+                btoa(svg);
+        }
+
+
+        /* =====================================================
+           RENDER PEOPLE
+        ===================================================== */
+
+        function renderPeople() {
+
+            const container =
+                document.getElementById("peopleList");
+
+            const search =
+                document
+                    .getElementById("searchInput")
+                    .value
+                    .toLowerCase()
+                    .trim();
+
+            const filtered = people.filter(person =>
+                person.name.toLowerCase().includes(search)
+            );
+
+            if (!filtered.length) {
+
+                container.innerHTML = `
+            <div class="empty-people">
+                ${people.length
+                        ? "No one found."
+                        : "Add someone to start your memory space."}
+            </div>
+        `;
+
+                return;
+            }
+
+            container.innerHTML = filtered.map(person => {
+
+                const latest =
+                    person.memories &&
+                        person.memories.length
+                        ? person.memories[person.memories.length - 1]
+                        : null;
+
+                const preview =
+                    latest
+                        ? latest.caption || "A memory..."
+                        : person.description || "No memories yet.";
+
+                return `
+            <div
+                class="person-item
+                ${currentPersonId === person.id ? "active" : ""}"
+                onclick="openPerson('${person.id}')"
+            >
+
+                <img
+                    class="avatar"
+                    src="${person.image || defaultAvatar(person.name)}"
+                >
+
+                <div class="person-info">
+
+                    <div class="person-name">
+                        ${escapeHTML(person.name)}
+                    </div>
+
+                    <div class="person-preview">
+                        ${escapeHTML(preview)}
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+            }).join("");
+        }
+
+
+        /* =====================================================
+           OPEN PERSON
+        ===================================================== */
+
+        function openPerson(id) {
+
+            currentPersonId = id;
+
+            const person =
+                people.find(p => p.id === id);
+
+            if (!person) return;
+
+            renderPeople();
+
+            const content =
+                document.getElementById("content");
+
+            content.innerHTML = `
+
+        <div class="profile">
+
+            <div class="profile-top">
+
+                <button
+                    class="back-btn"
+                    onclick="goHome()"
+                >
+                    ←
+                </button>
+
+                <img
+                    class="profile-avatar"
+                    src="${person.image || defaultAvatar(person.name)}"
+                >
+
+                <div class="profile-info">
+
+                    <h1>
+                        ${escapeHTML(person.name)}
+                    </h1>
+
+                    <p>
+                        ${escapeHTML(
+                person.description ||
+                "Someone worth remembering."
+            )}
+                    </p>
+
+                </div>
+
+                <div class="profile-actions">
+
+                    <button
+                        class="small-btn"
+                        onclick="openEditPerson('${person.id}')"
+                    >
+                        Edit
+                    </button>
+
+                    <button
+                        class="small-btn danger"
+                        onclick="deletePerson('${person.id}')"
+                    >
+                        Delete
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="meaning-box">
+
+                <div class="section-label">
+                    What they mean to me
+                </div>
+
+                <textarea
+                    placeholder="Write whatever comes to mind..."
+                    oninput="updateMeaning('${person.id}', this.value)"
+                >${escapeHTML(person.meaning || "")}</textarea>
+
+            </div>
+
+
+            <div class="memories-header">
+
+                <h2>
+                    Memories
+                </h2>
+
+                <div>
+
+                    <span class="memory-count">
+                        ${(person.memories || []).length}
+                        ${(person.memories || []).length === 1
+                    ? "memory"
+                    : "memories"}
+                    </span>
+
+                    <button
+                        class="small-btn"
+                        style="margin-left:10px"
+                        onclick="openAddMemory('${person.id}')"
+                    >
+                        + Pin memory
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="memory-grid">
+
+                ${person.memories &&
+                    person.memories.length
+
+                    ? person.memories
+                        .map((memory, index) =>
+                            memoryCard(memory, index, person.id)
+                        )
+                        .join("")
+
+                    : `
+                        <div class="empty-memory">
+
+                            <strong>
+                                Nothing pinned yet.
+                            </strong>
+
+                            This space is waiting for its
+                            first memory.
+
+                        </div>
+                    `
+                }
+
+            </div>
+
+        </div>
+    `;
+        }
+
+
+        /* =====================================================
+           MEMORY CARD
+        ===================================================== */
+
+        function memoryCard(memory, index, personId) {
+
+            const rotations = [
+                "-1.3deg",
+                "1.2deg",
+                "-0.7deg",
+                "1.6deg",
+                "-1deg"
+            ];
+
+            const rotation =
+                rotations[index % rotations.length];
+
+            return `
+
+        <div
+            class="memory-card"
+            style="--rotation:${rotation}"
+        >
+
+            <div class="memory-paper">
+
+                <div class="memory-image-wrap">
+
+                    <div class="pin"></div>
+
+                    <img
+                        class="memory-image"
+                        src="${memory.image}"
+                        alt="Memory"
+                    >
+
+                </div>
+
+                ${memory.caption
+                    ? `
+                        <div class="memory-caption">
+                            ${escapeHTML(memory.caption)}
+                        </div>
+                    `
+                    : ""
+                }
+
+                ${memory.note
+                    ? `
+                        <div class="memory-note">
+                            ${escapeHTML(memory.note)}
+                        </div>
+                    `
+                    : ""
+                }
+
+                ${memory.date
+                    ? `
+                        <div class="memory-date">
+                            ${formatDate(memory.date)}
+                        </div>
+                    `
+                    : ""
+                }
+
+                <div class="memory-menu">
+
+                    <button
+                        onclick="deleteMemory('${personId}','${memory.id}')"
+                    >
+                        Remove
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    `;
+        }
+
+
+        /* =====================================================
+           HOME
+        ===================================================== */
+
+        function goHome() {
+
+            currentPersonId = null;
+
+            renderPeople();
+
+            document.getElementById("content").innerHTML = `
+
+        <div class="welcome">
+
+            <div class="welcome-icon">
+                ✦
+            </div>
+
+            <h1>
+                Your <span>Memory Space.</span>
+            </h1>
+
+            <p>
+                A private little place for the people,
+                moments, thoughts and memories you don't
+                want to lose.
+            </p>
+
+        </div>
+    `;
+        }
+
+
+        /* =====================================================
+           ADD PERSON
+        ===================================================== */
+
+        function openAddPerson() {
+
+            editingPersonId = null;
+
+            document.getElementById("personModalTitle")
+                .textContent = "Add Person";
+
+            document.getElementById("personName").value = "";
+
+            document.getElementById("personDescription").value = "";
+
+            document.getElementById("personImage").value = "";
+
+            document.getElementById("personModal")
+                .classList.add("show");
+        }
+
+
+        /* =====================================================
+           EDIT PERSON
+        ===================================================== */
+
+        function openEditPerson(id) {
+
+            const person =
+                people.find(p => p.id === id);
+
+            if (!person) return;
+
+            editingPersonId = id;
+
+            document.getElementById("personModalTitle")
+                .textContent = "Edit Person";
+
+            document.getElementById("personName").value =
+                person.name;
+
+            document.getElementById("personDescription").value =
+                person.description || "";
+
+            document.getElementById("personImage").value = "";
+
+            document.getElementById("personModal")
+                .classList.add("show");
+        }
+
+
+        /* =====================================================
+           PERSON FORM
+        ===================================================== */
+
+        document
+            .getElementById("personForm")
+            .addEventListener("submit", async function (e) {
+
+                e.preventDefault();
+
+                const name =
+                    document
+                        .getElementById("personName")
+                        .value
+                        .trim();
+
+                const description =
+                    document
+                        .getElementById("personDescription")
+                        .value
+                        .trim();
+
+                const file =
+                    document
+                        .getElementById("personImage")
+                        .files[0];
+
+                if (!name) return;
+
+                if (editingPersonId) {
+
+                    const person =
+                        people.find(p =>
+                            p.id === editingPersonId
+                        );
+
+                    person.name = name;
+
+                    person.description =
+                        description;
+
+                    if (file) {
+                        person.image =
+                            await imageToBase64(file);
+                    }
+
+                    saveData();
+
+                    closeModals();
+
+                    showToast("Person updated.");
+
+                    openPerson(person.id);
+
+                    return;
+                }
+
+                const newPerson = {
+
+                    id:
+                        Date.now().toString(),
+
+                    name,
+
+                    description,
+
+                    image:
+                        file
+                            ? await imageToBase64(file)
+                            : defaultAvatar(name),
+
+                    meaning: "",
+
+                    memories: []
+
+                };
+
+                people.unshift(newPerson);
+
+                saveData();
+
+                closeModals();
+
+                showToast("Person added.");
+
+                openPerson(newPerson.id);
+
+            });
+
+
+        /* =====================================================
+           ADD MEMORY
+        ===================================================== */
+
+        function openAddMemory(personId) {
+
+            currentPersonId = personId;
+
+            document.getElementById("memoryForm").reset();
+
+            document.getElementById("memoryDate").value =
+                new Date().toISOString().split("T")[0];
+
+            document.getElementById("memoryModal")
+                .classList.add("show");
+        }
+
+
+        /* =====================================================
+           MEMORY FORM
+        ===================================================== */
+
+        document
+            .getElementById("memoryForm")
+            .addEventListener("submit", async function (e) {
+
+                e.preventDefault();
+
+                const person =
+                    people.find(p =>
+                        p.id === currentPersonId
+                    );
+
+                if (!person) return;
+
+                const file =
+                    document
+                        .getElementById("memoryImage")
+                        .files[0];
+
+                if (!file) return;
+
+                const caption =
+                    document
+                        .getElementById("memoryCaption")
+                        .value
+                        .trim();
+
+                const note =
+                    document
+                        .getElementById("memoryNote")
+                        .value
+                        .trim();
+
+                const date =
+                    document
+                        .getElementById("memoryDate")
+                        .value;
+
+                const memory = {
+
+                    id:
+                        Date.now().toString(),
+
+                    image:
+                        await imageToBase64(file),
+
+                    caption,
+
+                    note,
+
+                    date
+                };
+
+                if (!person.memories) {
+                    person.memories = [];
+                }
+
+                person.memories.unshift(memory);
+
+                saveData();
+
+                closeModals();
+
+                showToast("Memory pinned 📌");
+
+                openPerson(person.id);
+
+            });
+
+
+        /* =====================================================
+           UPDATE MEANING
+        ===================================================== */
+
+        function updateMeaning(id, value) {
+
+            const person =
+                people.find(p => p.id === id);
+
+            if (!person) return;
+
+            person.meaning = value;
+
+            saveData();
+        }
+
+
+        /* =====================================================
+           DELETE PERSON
+        ===================================================== */
+
+        function deletePerson(id) {
+
+            const person =
+                people.find(p => p.id === id);
+
+            if (!person) return;
+
+            const confirmed =
+                confirm(
+                    `Delete "${person.name}" and all their memories?`
+                );
+
+            if (!confirmed) return;
+
+            people =
+                people.filter(p => p.id !== id);
+
+            saveData();
+
+            currentPersonId = null;
+
+            renderPeople();
+
+            goHome();
+
+            showToast("Person removed.");
+        }
+
+
+        /* =====================================================
+           DELETE MEMORY
+        ===================================================== */
+
+        function deleteMemory(personId, memoryId) {
+
+            const person =
+                people.find(p => p.id === personId);
+
+            if (!person) return;
+
+            const confirmed =
+                confirm("Remove this memory?");
+
+            if (!confirmed) return;
+
+            person.memories =
+                person.memories.filter(
+                    m => m.id !== memoryId
+                );
+
+            saveData();
+
+            openPerson(personId);
+
+            showToast("Memory removed.");
+        }
+
+
+        /* =====================================================
+           CLOSE MODALS
+        ===================================================== */
+
+        function closeModals() {
+
+            document
+                .querySelectorAll(".overlay")
+                .forEach(modal =>
+                    modal.classList.remove("show")
+                );
+        }
+
+
+        /* =====================================================
+           CLOSE MODAL BY CLICKING OUTSIDE
+        ===================================================== */
+
+        document
+            .querySelectorAll(".overlay")
+            .forEach(overlay => {
+
+                overlay.addEventListener("click", function (e) {
+
+                    if (e.target === overlay) {
+                        closeModals();
+                    }
+
+                });
+
+            });
+
+
+        /* =====================================================
+           TOAST
+        ===================================================== */
+
+        let toastTimer;
+
+        function showToast(message) {
+
+            const toast =
+                document.getElementById("toast");
+
+            toast.textContent = message;
+
+            toast.classList.add("show");
+
+            clearTimeout(toastTimer);
+
+            toastTimer =
+                setTimeout(() => {
+
+                    toast.classList.remove("show");
+
+                }, 2200);
+        }
+
+
+        /* =====================================================
+           DATE FORMAT
+        ===================================================== */
+
+        function formatDate(date) {
+
+            const d = new Date(date + "T00:00:00");
+
+            return d.toLocaleDateString(
+                undefined,
+                {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                }
+            );
+        }
+
+
+        /* =====================================================
+           SECURITY / HTML ESCAPE
+        ===================================================== */
+
+        function escapeHTML(value) {
+
+            if (!value) return "";
+
+            return value
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        /* =====================================================
+           INITIALIZE
+        ===================================================== */
+
+        renderPeople();
+
+    </script>
+
+</body>
+
+</html>
